@@ -1,0 +1,912 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<orient-server>
+    <handlers>
+        <handler class="com.orientechnologies.orient.graph.handler.OGraphServerHandler">
+            <parameters>
+                <parameter value="true" name="enabled"/>
+                <parameter value="50" name="graph.pool.max"/>
+            </parameters>
+        </handler>
+        <handler class="com.orientechnologies.orient.server.hazelcast.OHazelcastPlugin">
+            <parameters>
+                <parameter value="${distributed}" name="enabled"/>
+                <parameter value="${ORIENTDB_HOME}/config/default-distributed-db-config.json" name="configuration.db.default"/>
+                <parameter value="${ORIENTDB_HOME}/config/hazelcast.xml" name="configuration.hazelcast"/>
+                <parameter value="node1" name="nodeName"/>
+            </parameters>
+        </handler>
+        <handler class="com.orientechnologies.orient.server.handler.OJMXPlugin">
+            <parameters>
+                <parameter value="false" name="enabled"/>
+                <parameter value="true" name="profilerManaged"/>
+            </parameters>
+        </handler>
+        <handler class="com.orientechnologies.orient.server.handler.OAutomaticBackup">
+            <parameters>
+                <parameter value="false" name="enabled"/>
+                <parameter value="4h" name="delay"/>
+                <parameter value="23:00:00" name="firstTime"/>
+                <parameter value="backup" name="target.directory"/>
+                <parameter value="${DBNAME}-${DATE:yyyyMMddHHmmss}.zip" name="target.fileName"/>
+                <parameter value="9" name="compressionLevel"/>
+                <parameter value="1048576" name="bufferSize"/>
+                <parameter value="" name="db.include"/>
+                <parameter value="" name="db.exclude"/>
+            </parameters>
+        </handler>
+        <handler class="com.orientechnologies.orient.server.handler.OServerSideScriptInterpreter">
+            <parameters>
+                <parameter value="true" name="enabled"/>
+                <parameter value="SQL" name="allowedLanguages"/>
+            </parameters>
+        </handler>
+        <handler class="com.orientechnologies.orient.server.token.OrientTokenHandler">
+            <parameters>
+                <parameter value="false" name="enabled"/>
+                <parameter value="" name="oAuth2Key"/>
+                <parameter value="60" name="sessionLength"/>
+                <parameter value="HmacSHA256" name="encryptionAlgorithm"/>
+            </parameters>
+        </handler>
+        <handler class="com.orientechnologies.orient.server.plugin.livequery.OLiveQueryPlugin">
+            <parameters>
+                <parameter value="false" name="enabled"/>
+            </parameters>
+        </handler>
+    </handlers>
+    <network>
+        <sockets>
+            <socket implementation="com.orientechnologies.orient.server.network.OServerSSLSocketFactory" name="ssl">
+                <parameters>
+                    <parameter value="false" name="network.ssl.clientAuth"/>
+                    <parameter value="config/cert/orientdb.ks" name="network.ssl.keyStore"/>
+                    <parameter value="password" name="network.ssl.keyStorePassword"/>
+                    <parameter value="config/cert/orientdb.ks" name="network.ssl.trustStore"/>
+                    <parameter value="password" name="network.ssl.trustStorePassword"/>
+                </parameters>
+            </socket>
+            <socket implementation="com.orientechnologies.orient.server.network.OServerSSLSocketFactory" name="https">
+                <parameters>
+                    <parameter value="false" name="network.ssl.clientAuth"/>
+                    <parameter value="config/cert/orientdb.ks" name="network.ssl.keyStore"/>
+                    <parameter value="password" name="network.ssl.keyStorePassword"/>
+                    <parameter value="config/cert/orientdb.ks" name="network.ssl.trustStore"/>
+                    <parameter value="password" name="network.ssl.trustStorePassword"/>
+                </parameters>
+            </socket>
+        </sockets>
+        <protocols>
+            <protocol implementation="com.orientechnologies.orient.server.network.protocol.binary.ONetworkProtocolBinary" name="binary"/>
+            <protocol implementation="com.orientechnologies.orient.server.network.protocol.http.ONetworkProtocolHttpDb" name="http"/>
+        </protocols>
+        <listeners>
+            <listener protocol="binary" socket="default" port-range="2424-2430" ip-address="0.0.0.0"/>
+            <listener protocol="http" socket="default" port-range="2480-2490" ip-address="0.0.0.0">
+                <commands>
+                    <command implementation="com.orientechnologies.orient.server.network.protocol.http.command.get.OServerCommandGetStaticContent" pattern="GET|www GET|studio/ GET| GET|*.htm GET|*.html GET|*.xml GET|*.jpeg GET|*.jpg GET|*.png GET|*.gif GET|*.js GET|*.css GET|*.swf GET|*.ico GET|*.txt GET|*.otf GET|*.pjs GET|*.svg GET|*.json GET|*.woff GET|*.woff2 GET|*.ttf GET|*.svgz" stateful="false">
+                        <parameters>
+                            <entry value="Cache-Control: no-cache, no-store, max-age=0, must-revalidate\r\nPragma: no-cache" name="http.cache:*.htm *.html"/>
+                            <entry value="Cache-Control: max-age=120" name="http.cache:default"/>
+                        </parameters>
+                    </command>
+                    <command implementation="com.orientechnologies.orient.graph.server.command.OServerCommandGetGephi" pattern="GET|gephi/*" stateful="false"/>
+               
+                    <command implementation="com.cs.config.strategy.plugin.usecase.vertextypes.CreateVertexTypes" pattern="POST|CreateVertexTypes/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.attribute.CreateAttribute" pattern="POST|CreateAttribute/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.attribute.GetAttribute" pattern="POST|GetAttribute/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.attribute.SaveAttribute" pattern="POST|SaveAttribute/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.attribute.DeleteAttribute" pattern="POST|DeleteAttribute/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.attribute.GetAttributesById" pattern="POST|GetAttributesById/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.attribute.GetAttributes" pattern="POST|GetAttributes/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.attribute.GetAttributeList" pattern="POST|GetAttributeList/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.attribute.GetGridAttributes" pattern="POST|GetGridAttributes/*" stateful="false"/>
+                       
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.CreateKlass" pattern="POST|CreateKlass/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.klass.GetOrCreateKlass" pattern="POST|GetOrCreateKlass/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.SaveKlass" pattern="POST|SaveKlass/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.GetKlass" pattern="POST|CreateKlass/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.GetKlasses" pattern="POST|GetKlasses/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.DeleteKlasses" pattern="POST|DeleteKlasses/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.GetKlassesById" pattern="POST|GetKlassesById/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.GetKlassWithLinkedKlasses" pattern="POST|GetKlassWithLinkedKlasses/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.klass.GetAllowedTypes" pattern="POST|GetAllowedTypes/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.klass.GetDefaultKlasses" pattern="POST|GetDefaultKlasses/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.klass.GetKlassForModule" pattern="POST|GetKlassForModule/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.klass.GetKlassWithoutKP" pattern="POST|GetKlassWithoutKP/*" stateful="false"/>
+					
+					<command implementation="com.cs.config.strategy.plugin.usecase.klass.GetKlassWithGlobalPermission" pattern="POST|GetKlassWithGlobalPermission/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.versionrollback.GetConfigDetailsForVersionRollback" pattern="POST|GetConfigDetailsForVersionRollback/*" stateful="false"/>
+
+					<command implementation="com.cs.config.strategy.plugin.usecase.klass.GetReferencedRelationshipProperties" pattern="POST|GetReferencedRelationshipProperties/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.klass.GetKlassesListByNatureType" pattern="POST|GetKlassesListByNatureType/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.klass.GetSectionInfoForKlass" pattern="POST|GetSectionInfoForKlass/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.klass.GetKlassesListByBaseType" pattern="POST|GetKlassesListByBaseType/*" stateful="false"/>
+					
+					<command implementation="com.cs.runtime.strategy.plugin.usecase.klassinstance.GetConfigDetailsForEventsTab" pattern="POST|GetConfigDetailsForEventsTab/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.klass.GetConfigDetailsForTimelineTab" pattern="POST|GetConfigDetailsForTimelineTab/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.klass.GetConfigDetailsForCreateInstancePromoVersion" pattern="POST|GetConfigDetailsForCreateInstancePromoVersion/*" stateful="false"/>		
+					<command implementation="com.cs.runtime.strategy.plugin.usecase.klassinstance.variant.GetConfigDetailsForAutoCreateVariantInstance" pattern="POST|GetConfigDetailsForAutoCreateVariantInstance/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.klass.GetConfigDetailsForTaxonomyHierarchy" pattern="POST|GetConfigDetailsForTaxonomyHierarchy/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.klass.ConfigDetailsForTaxonomyHierarchyForVariantLinkedInstancesQuicklist" pattern="POST|ConfigDetailsForTaxonomyHierarchyForVariantLinkedInstancesQuicklist/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.klass.ConfigDetailsForTaxonomyTreeByLeafIdsForVariantLinkedInstancesQuicklist" pattern="POST|ConfigDetailsForTaxonomyTreeByLeafIdsForVariantLinkedInstancesQuicklist/*" stateful="false"/>
+					<command implementation="com.cs.runtime.strategy.plugin.usecase.klassinstance.variant.GetConfigDetailsForGetVariantInstancesInTableView" pattern="POST|GetConfigDetailsForGetVariantInstancesInTableView/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.klass.gridview.GetConfigDetailsForContentGridView" pattern="POST|GetConfigDetailsForContentGridView/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.klass.gridview.GetContentGridPropertiesList" pattern="POST|GetContentGridPropertiesList/*" stateful="false"/>
+					
+					<command implementation="com.cs.config.strategy.plugin.usecase.configdetails.instance.GetConfigDetailsForBookmark" pattern="POST|GetConfigDetailsForBookmark/*" stateful="false"/>
+					
+					<command implementation="com.cs.config.strategy.plugin.usecase.klass.GetKlassesTree" pattern="POST|GetKlassesTree/*" stateful="false"/>
+				
+					<command implementation="com.cs.config.strategy.plugin.usecase.klass.GetAllKlassesTree" pattern="POST|GetAllKlassesTree/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.article.GetAllTaxonomiesTree" pattern="POST|GetAllTaxonomiesTree/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.article.GetChildTaxonomiesByParentId" pattern="POST|GetChildTaxonomiesByParentId/*" stateful="false" />
+					<command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.article.SearchTaxonomyByLabel" pattern="POST|SearchTaxonomyByLabel/*" stateful="false" />
+					<command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.article.GetTaxonomyTreeByLeafIds" pattern="POST|GetTaxonomyTreeByLeafIds/*" stateful="false" />
+					<command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.article.AddOrDeleteTaxonomyLevels" pattern="POST|AddOrDeleteTaxonomyLevels/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.article.GetImmediateChildMajorTaxonomiesByParentId" pattern="GetImmediateChildMajorTaxonomiesByParentId/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.article.GetSectionInfoForTaxonomy" pattern="POST|GetSectionInfoForTaxonomy/*" stateful="false"/>
+					
+					<command implementation="com.cs.config.strategy.plugin.usecase.klass.GetDefaultKlassesForModules" pattern="POST|GetDefaultKlassesForModules/*" stateful="false"/>
+							
+					<command implementation="com.cs.config.strategy.plugin.usecase.tag.GetAllDisplayAndRelevanceTagIds" pattern="POST|GetAllDisplayAndRelevanceTagIds/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.tag.GetAllSingleSelectTagIds" pattern="POST|GetAllSingleSelectTagIds/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.tag.GetTagsById" pattern="POST|GetTagsById/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.tag.CreateTag" pattern="POST|CreateTag/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.tag.GetAllTags" pattern="POST|GetAllTags/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.tag.GetTag" pattern="POST|GetTag/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.tag.SaveTag" pattern="POST|SaveTag/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.tag.DeleteTags" pattern="POST|DeleteTags/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.tag.GetTagsListByType" pattern="POST|GetTagsListByType/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.tag.BulkCreateTagValues" pattern="POST|BulkCreateTagValues/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.tag.GetAllDimensionalTagIds" pattern="POST|GetAllDimensionalTagIds/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.tag.GetAllDisplayTagIds" pattern="POST|GetAllDisplayTagIds/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.tag.GetOrCreateTags" pattern="POST|GetOrCreateTags/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.tag.GetAllMasterTags" pattern="POST|GetAllMasterTags/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.tagtype.CreateTagTypes" pattern="POST|CreateTagTypes/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.tagtype.GetOrCreateTagTypes" pattern="POST|GetOrCreateTagTypes/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.tagtype.GetTagTypes" pattern="POST|GetTagTypes/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.tagtype.GetTagType" pattern="POST|GetTagType/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.user.CreateUser" pattern="POST|CreateUser/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.user.GetUserByUsername" pattern="POST|GetUserByUsername/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.user.GetUser" pattern="POST|GetUser/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.user.SaveUsers" pattern="POST|SaveUsers/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.user.DeleteUsers" pattern="POST|DeleteUsers/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.user.GetUsers" pattern="POST|GetUsers/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.user.GetCurrentUser" pattern="POST|GetCurrentUser/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.user.GetAllowedUsers" pattern="POST|GetAllowedUsers/*" stateful="false"/>			
+					<command implementation="com.cs.config.strategy.plugin.usecase.user.GetGridUsers" pattern="POST|GetGridUsers/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.user.GetUsersByRole" pattern="POST|GetUsersByRole/*" stateful="false"/>
+
+                    <command implementation="com.cs.config.strategy.plugin.usecase.role.CreateRole" pattern="POST|CreateUser/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.role.GetRole" pattern="POST|GetRole/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.role.SaveRole" pattern="POST|SaveRole/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.role.DeleteRoles" pattern="POST|DeleteRoles/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.role.GetRoles" pattern="POST|GetRoles/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.role.GetRolesAndKlassesForUser" pattern="POST|GetRolesAndKlassesForUser/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.role.GetRoleIdsForCurrentUser" pattern="POST|GetRoleIdsForCurrentUser/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.role.GetRolesById" pattern="POST|GetRolesById/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.role.GetAllowedTargetsForOrganizationAndRole" pattern="POST|GetAllowedTargetsForOrganizationAndRole/*" stateful="false"/>						
+					<command implementation="com.cs.config.strategy.plugin.usecase.role.GetSelectedSystemsInOrganization" pattern="POST|GetSelectedSystemsInOrganization/*" stateful="false"/>
+
+                    <command implementation="com.cs.config.strategy.plugin.usecase.asset.SaveAsset" pattern="POST|SaveAsset/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.asset.GetAsset" pattern="POST|GetAsset/*" stateful="false"/>
+                 	 <command implementation="com.cs.config.strategy.plugin.usecase.asset.GetAssetWithoutKP" pattern="POST|GetAssetWithoutKP/*" stateful="false"/>
+                  
+                    <command implementation="com.cs.config.strategy.plugin.usecase.asset.GetAssetWithGlobalPermission" pattern="POST|GetAssetWithGlobalPermission/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.asset.CreateAsset" pattern="POST|CreateAsset/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.asset.GetAssets" pattern="POST|GetAssets/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.asset.DeleteAssets" pattern="POST|DeleteAssets/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.asset.GetAllMasterAssets" pattern="POST|GetAllMasterAssets/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.asset.GetAssetsByIds" pattern="POST|GetAssetsByIds/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.asset.GetAllAssets" pattern="POST|GetAllAssets/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.asset.GetOrCreateAsset" pattern="POST|GetOrCreateAsset/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.asset.GetAssetWithLinkedKlasses" pattern="POST|GetAssetWithLinkedKlasses/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.asset.FetchAssetConfigurationDetails" pattern="POST|FetchAssetConfigurationDetails/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.asset.GetAllRenditionKlassesWithPermission" pattern="POST|GetAllRenditionKlassesWithPermission/*" stateful="false"/>
+
+					<command implementation="com.cs.config.strategy.plugin.usecase.target.GetTargetWithoutKP" pattern="POST|GetTargetWithoutKP/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.target.SaveTarget" pattern="POST|SaveTarget/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.target.GetTarget" pattern="POST|GetTarget/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.target.GetTargetWithGlobalPermission" pattern="POST|GetTargetWithGlobalPermission/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.target.GetOrCreateTarget" pattern="POST|GetOrCreateTarget/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.target.CreateTarget" pattern="POST|CreateTarget/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.target.GetTargets" pattern="POST|GetTargets/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.target.DeleteTargets" pattern="POST|DeleteTargets/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.target.GetAllMasterTargets" pattern="POST|GetTargets/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.target.GetAllTargets" pattern="POST|GetTargets/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.target.GetTargetsByIds" pattern="POST|GetTargetsByIds/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.target.GetTargetWithLinkedKlasses" pattern="POST|GetTargetWithLinkedKlasses/*" stateful="false"/>
+                    
+                    <command implementation="com.cs.config.strategy.plugin.usecase.standardattribute.CreateStandardAttribute" pattern="POST|CreateStandardAttribute/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.standardattribute.GetOrCreateStandardAttribute" pattern="POST|GetOrCreateStandardAttribute/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.standardattribute.GetStandardAttributes" pattern="POST|GetStandardAttributes/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.standarduser.CreateStandardUser" pattern="POST|CreateStandardUser/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.standarduser.GetOrCreateStandardUser" pattern="POST|GetOrCreateStandardUser/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.standarduser.GetStandardUser" pattern="POST|GetStandardUser/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.standarduser.GetStandardUsers" pattern="POST|GetStandardUsers/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.standardrole.CreateStandardRole" pattern="POST|CreateStandardRole/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.standardrole.GetOrCreateStandardRole" pattern="POST|GetOrCreateStandardRole/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.standardrole.GetStandardRoles" pattern="POST|GetStandardRoles/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.standardproperties.GetStandardProperties" pattern="POST|GetStandardRoles/*" stateful="false"/>
+
+                    <command implementation="com.cs.config.strategy.plugin.usecase.relationship.CreateRelationship" pattern="POST|CreateRelationship/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.relationship.SaveRelationship" pattern="POST|SaveRelationship/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.relationship.DeleteRelationship" pattern="POST|DeleteRelationship/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.relationship.GetRelationship" pattern="POST|GetRelationship/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.relationship.GetAllRelationships" pattern="POST|GetAllRelationships/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.relationship.GetRelationshipsById" pattern="POST|GetRelationshipsById/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.relationship.GetUnlinkedRelationshipsByKlassIds" pattern="POST|GetUnlinkedRelationshipsByKlassIds/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.relationship.GetRelationshipInformation" pattern="POST|GetRelationshipInformation/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.relationship.GetRelationshipInformationByKlassId" pattern="POST|GetRelationshipInformationByKlassId/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.relationship.BulkSaveRelationships" pattern="POST|BulkSaveRelationships/*" stateful="false"/>
+                    
+                    <command implementation="com.cs.config.strategy.plugin.usecase.relationship.GetKlassesForRelationship" pattern="POST|GetKlassesForRelationship/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.relationship.GetTargetKlasses" pattern="POST|GetTargetKlasses/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.relationship.GetKlassesForRelationshipSide" pattern="POST|GetKlassesForRelationshipSide/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.relationship.GetNatureRelationshipByType" pattern="POST|GetNatureRelationshipByType/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.relationship.extension.GetConfigDetailsForRelationshipObject" pattern="POST|GetConfigDetailsForRelationshipObject/*" stateful="false"/>
+
+					<command implementation="com.cs.config.strategy.plugin.usecase.relationship.extension.GetConfigDetailsForRelationshipExtension" pattern="POST|GetConfigDetailsForRelationshipExtension/*" stateful="false"/>
+
+                    <command implementation="com.cs.imprt.config.strategy.plugin.usecase.vertextypes.CreateImportVertexTypes" pattern="POST|CreateImportVertexTypes/*"/>           
+                    <command implementation="com.cs.imprt.config.strategy.plugin.usecase.attribute.SaveImportAttribute"/>
+                    <command implementation="com.cs.imprt.config.strategy.plugin.usecase.tag.SaveImportTag"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.relationship.GetImportKlassesForRelationship" />
+                    
+                    <command implementation="com.cs.config.strategy.plugin.usecase.datarule.CreateDataRule" pattern="POST|CreateDataRule/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.datarule.SaveDataRule" pattern="POST|SaveDataRule/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.datarule.DeleteDataRule" pattern="POST|DeleteDataRule/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.datarule.GetDataRule" pattern="POST|GetDataRule/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.datarule.GetDataRules" pattern="POST|GetDataRules/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.endpoint.GetDataRulesByUserId" pattern="POST|GetDataRulesByUserId/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.endpoint.GetDataRulesByEndpointId" pattern="POST|GetDataRulesByEndpointId/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.datarule.GetAllDataQualityRules" pattern="POST|GetAllDataQualityRules/*" stateful="false"/>
+                     <command implementation="com.cs.config.strategy.plugin.usecase.datarule.BulkSaveDataRule" pattern="POST|BulkSaveDataRule/*" stateful="false"/>
+                    
+                    <command implementation="com.cs.config.strategy.plugin.usecase.rulelist.CreateRuleList" pattern="POST|CreateRuleList/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.rulelist.SaveRuleList" pattern="POST|SaveRuleList/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.rulelist.DeleteRuleList" pattern="POST|DeleteRuleList/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.rulelist.GetRuleList" pattern="POST|GetRuleList/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.rulelist.GetAllRuleList" pattern="POST|GetAllRuleList/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.rulelist.GetReferencedDataRules" pattern="POST|GetReferencedDataRules/*" stateful="false"/>
+                    
+                    <command implementation="com.cs.config.strategy.plugin.usecase.condition.CreateCondition" pattern="POST|CreateCondition/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.condition.SaveCondition" pattern="POST|SaveCondition/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.condition.DeleteCondition" pattern="POST|DeleteCondition/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.condition.GetCondition" pattern="POST|GetCondition/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.condition.GetConditions" pattern="POST|GetConditions/*" stateful="false"/>
+                    
+                    <command implementation="com.cs.config.strategy.plugin.usecase.state.CreateState" pattern="POST|CreateState/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.state.SaveState" pattern="POST|SaveState/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.state.DeleteState" pattern="POST|DeleteState/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.state.GetState" pattern="POST|GetState/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.state.GetStates" pattern="POST|GetStates/*" stateful="false"/>
+                    
+                    <command implementation="com.cs.config.strategy.plugin.usecase.causeeffectrule.CreateCauseEffectRule" pattern="POST|CreateCauseEffectRule/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.causeeffectrule.SaveCauseEffectRule" pattern="POST|SaveCauseEffectRule/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.causeeffectrule.DeleteCauseEffectRule" pattern="POST|DeleteCauseEffectRule/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.causeeffectrule.GetCauseEffectRule" pattern="POST|GetCauseEffectRule/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.causeeffectrule.GetCauseEffectRules" pattern="POST|GetCauseEffectRules/*" stateful="false"/>
+
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.AllKlass" pattern="POST|AllKlass/*" stateful="false"/>
+       <!-- logo configuration -->    
+                    <command implementation="com.cs.config.strategy.plugin.usecase.logoconfiguration.SaveLogoConfiguration" pattern="POST|SaveLogoConfiguration/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.logoconfiguration.GetLogoConfiguration" pattern="POST|GetLogoConfiguration/*" stateful="false"/>
+
+                	<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_Relationship_Upgrade" pattern="POST|Orient_Migration_Script_Relationship_Upgrade/*" stateful="false"/>
+                	<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_Repair_Id_In_Self_Relationships" pattern="POST|Orient_Migration_Script_Repair_Id_In_Self_Relationships/*" stateful="false"/>
+                	<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_Workspace_Property_26_07_2017" pattern="POST|Orient_Migration_Script_Workspace_Property_26_07_2017/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_29_3_2017" pattern="POST|Orient_Migration_Script_29_3_2017/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_Is_Translatable_20_08_2018" pattern="POST|Orient_Migration_Script_Is_Translatable_20_08_2018/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_03_06_2017" pattern="POST|Orient_Migration_Script_03_06_2017/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_22_05_2017" pattern="POST|Orient_Migration_Script_22_05_2017/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_23_05_2017" pattern="POST|Orient_Migration_Script_23_05_2017/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_14_04_2017" pattern="POST|Orient_Migration_Script_14_04_2017/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_03_02_2017" pattern="POST|Orient_Migration_Script_03_02_2017/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_09_01_2017" pattern="POST|Orient_Migration_Script_09_01_2017/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_02_09_2016" pattern="POST|Orient_Migration_Script_02_09_2016/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_26_08_2016" pattern="POST|Orient_Migration_Script_26_08_2016/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_30_08_2016" pattern="POST|Orient_Migration_Script_30_08_2016/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_02_09_2016" pattern="POST|Orient_Migration_Script_02_09_2016/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_06_09_2016" pattern="POST|Orient_Migration_Script_06_09_2016/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_16_09_2016" pattern="POST|Orient_Migration_Script_16_09_2016/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_04_11_2016" pattern="POST|Orient_Migration_Script_04_11_2016/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_14_11_2016" pattern="POST|Orient_Migration_Script_14_11_2016/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_19_09_2016" pattern="POST|Orient_Migration_Script_19_09_2016/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_24_11_2017" pattern="POST|Orient_Migration_Script_24_11_2017/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_07_12_2016" pattern="POST|Orient_Migration_Script_07_12_2016/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_13_02_2017" pattern="POST|Orient_Migration_Script_13_02_2017/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_Remove_Tag_Type" pattern="POST|Orient_Migration_Script_Remove_Tag_Type/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_Relationship" pattern="POST|Orient_Migration_Script_Relationship/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_Data_Rule" pattern="POST|Orient_Migration_Script_Data_Rule/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Remove_All_Klass_Sections_And_Properties" pattern="POST|Orient_Remove_All_Klass_Sections_And_Properties/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Inherit_Non_Inheriting_Relationships" pattern="POST|Orient_Inherit_Non_Inheriting_Relationships/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_Standard_Attributes_Fix" pattern="POST|Orient_Migration_Script_Standard_Attributes_Fix/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_Relationship_Extension_Delete" pattern="POST|Orient_Migration_Script_Relationship_Extension_Delete/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_29_08_2017" pattern="POST|Orient_Migration_Script_29_08_2017/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_20_04_2017" pattern="POST|Orient_Migration_Script_20_04_2017/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Linking_Icons" pattern="POST|Orient_Linking_Icons/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Update_Tag_Value_Sequence" pattern="POST|Orient_Update_Tag_Value_Sequence/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_24_7_2017" pattern="POST|Orient_Migration_Script_24_7_2017/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_16_11_2017" pattern="POST|Orient_Migration_Script_16_11_2017/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_08_01_2018" pattern="POST|Orient_Migration_Script_08_01_2018/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_Language_Taxonomy" pattern="POST|Orient_Migration_Script_Language_Taxonomy/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_Concatenated_Attribute" pattern="POST|Orient_Migration_Script_Concatenated_Attribute/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_01_08_2018" pattern="POST|Orient_Migration_Script_01_08_2018/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_07_08_2018" pattern="POST|Orient_Migration_Script_07_08_2018/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_BaseTypeInMasterTaxonomy" pattern="POST|Orient_Migration_Script_BaseTypeInMasterTaxonomy/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_Language_Default_Number_Format" pattern="POST|Orient_Migration_Script_Language_Default_Number_Format/*" stateful="false"/>
+
+                    <command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_Script_For_Tab_24_08_2018" pattern="POST|Orient_Migration_Script_For_Tab_24_08_2018/*" stateful="false"></command>
+
+                    <command implementation="com.cs.config.strategy.plugin.usecase.user.ResetPassword" pattern="POST|ResetPassword/*" stateful="false"/>
+                    
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.GetArticleTree" pattern="POST|GetArticleTree/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.asset.GetAssetTree" pattern="POST|GetAssetTree/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.target.market.GetMarketTree" pattern="POST|GetMarketTree/*" stateful="false"/>
+
+     				<command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.article.BulkCreateHierarchyTaxonomy" pattern="POST|BulkCreateHierarchyTaxonomy/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.article.GetHierarchyTaxonomy" pattern="POST|GetHierarchyTaxonomy/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.article.CreateHierarchyTaxonomy" pattern="POST|CreateHierarchyTaxonomy/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.article.GetArticleTaxonomyByCode" pattern="POST|GetArticleTaxonomyByCode/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.article.SaveHierarchyTaxonomy" pattern="POST|SaveHierarchyTaxonomy/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.article.DeleteHierarchyTaxonomy" pattern="POST|DeleteHierarchyTaxonomy/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.article.GetArticleTaxonomyByCodeForOnboarding" pattern="POST|GetArticleTaxonomyByCodeForOnboarding/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.article.GetTaxonomyIdsByCodeAndParentIdForOnboarding" pattern="POST|GetTaxonomyIdsByCodeAndParentIdForOnboarding/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.article.GetTaxonomyIdsByCodeIdForOnboarding" pattern="POST|GetTaxonomyIdsByCodeIdForOnboarding/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.article.GetChildTaxonomiesByParentIdWithSelectedTaxonomies" pattern="POST|GetChildTaxonomiesByParentIdWithSelectedTaxonomies/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.article.GetTaxonomiesHierarchyById" pattern="POST|GetTaxonomiesHierarchyById/*" stateful="false"/>
+                    
+                    <command implementation="com.cs.config.strategy.plugin.usecase.attributiontaxonomy.CreateMasterTaxonomy" pattern="POST|CreateMasterTaxonomy/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.attributiontaxonomy.SaveMasterTaxonomy" pattern="POST|SaveMasterTaxonomy/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.attributiontaxonomy.GetMasterTaxonomy" pattern="POST|GetMasterTaxonomy/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.tag.GetAvailableMasterTags" pattern="POST|GetAvailableMasterTags/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.tag.GetAvailableMasterTagsForArticleTaxonomy" pattern="POST|GetAvailableMasterTagsForArticleTaxonomy/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.attributiontaxonomy.BulkCreateMasterTaxonomy" pattern="POST|BulkCreateMasterTaxonomy/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.attributiontaxonomy.DeleteMasterTaxonomy" pattern="POST|DeleteMasterTaxonomy/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.attributiontaxonomy.GetTaxonomies" pattern="POST|GetTaxonomies/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.attributiontaxonomy.GetAllowedTagValuesForMasterTaxonomy" pattern="POST|GetAllowedTagValuesForMasterTaxonomy/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.article.GetAllowedTagValuesForArticleTaxonomy" pattern="POST|GetAllowedTagValuesForArticleTaxonomy/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.attributiontaxonomy.GetKlassAndAttributionTaxonomy" pattern="POST|GetKlassAndAttributionTaxonomy/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.attributiontaxonomy.GetTaxonomiesForQuicklist" pattern="POST|GetTaxonomiesForQuicklist/*" stateful="false"/>
+                    
+					<command implementation="com.cs.config.strategy.plugin.usecase.language.CreateLanguage" pattern="POST|CreateLanguage/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.language.GetLanguage" pattern="POST|GetLanguage/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.language.UpdateSchemaOnCreateLanguage" pattern="POST|UpdateSchemaOnCreateLanguage/*" stateful="false"/>
+     				<command implementation="com.cs.config.strategy.plugin.usecase.language.GetOrCreateLanguage" pattern="POST|GetOrCreateLanguage/*" stateful="false"/>
+   					<command implementation="com.cs.config.strategy.plugin.usecase.language.SaveLanguage" pattern="POST|SaveLanguage/*" stateful="false"/>
+     			    <command implementation="com.cs.config.strategy.plugin.usecase.language.DeleteLanguage" pattern="POST|DeleteLanguage/*" stateful="false"/>
+     			    <command implementation="com.cs.config.strategy.plugin.usecase.language.GetLanguages" pattern="POST|GetLanguages/*" stateful="false"/>
+     			    <command implementation="com.cs.config.strategy.plugin.usecase.language.GetAllLanguageCodes" pattern="POST|GetAllLanguageCodes/*" stateful="false"/>
+
+
+                    <command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.article.GetFilterAndSortDataForArticle" pattern="POST|GetFilterAndSortDataForArticle/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.asset.GetFilterAndSortDataForAsset" pattern="POST|GetFilterAndSortDataForAsset/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.target.GetFilterAndSortDataForTarget" pattern="POST|GetFilterAndSortDataForTarget/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.article.GetArticleTaxonomyTree" pattern="POST|GetArticleTaxonomyTree/*" stateful="false"/>
+                    
+                    <command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.article.GetFilterAndSortDataForKlass" pattern="POST|GetFilterAndSortDataForKlass/*" stateful="false"/>
+                    
+                    <command implementation="com.cs.config.strategy.plugin.usecase.onboardinguser.CreateOnboardingUser" pattern="POST|CreateOnboardingUser/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.onboardinguser.GetOnboardingUserByUserName" pattern="POST|GetOnboardingUserByUserName/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.onboardinguser.GetOnboardingUser" pattern="POST|GetOnboardingUser/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.onboardinguser.SaveOnboardingUser" pattern="POST|SaveOnboardingUser/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.onboardinguser.DeleteOnboardingUser" pattern="POST|DeleteOnboardingUser/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.onboardinguser.GetOnboardingUsers" pattern="POST|GetAllOnboardingUsers/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.onboardinguser.ResetOnboardingUserPassword" pattern="POST|ResetOnboardingUserPassword/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.onboardinguser.GetOrCreateStandardOnboardingUser" pattern="POST|GetOrCreateStandardOnboardingUser/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.offboardinguser.GetOffboardingUserByUserName" pattern="POST|GetOffboardingUserByUserName/*" stateful="false"/>
+                    
+                    <command implementation="com.cs.config.strategy.plugin.usecase.standardsupplier.CreateStandardSupplier" pattern="POST|CreateStandardSupplier/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.standardsupplier.GetOrCreateStandardSupplier" pattern="POST|GetOrCreateStandardSupplier/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.standardsupplier.GetStandardSupplier" pattern="POST|GetStandardSupplier/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.standardsupplier.GetStandardSupplier" pattern="POST|GetStandardSuppliers/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.standardsupplier.GetSupplierWithLinkedKlasses" pattern="POST|GetSupplierWithLinkedKlasses/*" stateful="false"/>
+                    
+                    <command implementation="com.cs.runtime.strategy.plugin.usecase.file.GetSupplierArticleFileKlassMapping" pattern="POST|GetSupplierArticleFileKlassMapping/*" stateful="false"/>
+                    <command implementation="com.cs.runtime.strategy.plugin.usecase.file.SaveArticleFileSupplierKlassMapping" pattern="POST|SaveArticleFileSupplierKlassMapping/*" stateful="false"/>
+                    
+                    <command implementation="com.cs.config.strategy.plugin.usecase.tag.BulkCreateTags" pattern="POST|BulkCreateTags/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.user.BulkCreateUsers" pattern="POST|BulkCreateUsers/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.attribute.BulkCreateAttributes" pattern="POST|BulkCreateAttributes/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.role.BulkCreateRoles" pattern="POST|BulkCreateRoles/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.relationship.BulkCreateRelationships" pattern="POST|BulkCreateRelationships/*" stateful="false"/>
+
+                    <command implementation="com.cs.config.strategy.plugin.usecase.propertycollection.BulkCreatePropertyCollections" pattern="POST|BulkCreatePropertyCollections/*" stateful="false"/>
+                    
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.BulkCreateKlasses" pattern="POST|BulkCreateKlasses/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.BulkSaveKlasses" pattern="POST|BulkSaveKlassses/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.asset.BulkCreateAssets" pattern="POST|BulkCreateAssets/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.asset.BulkSaveAssets" pattern="POST|BulkSaveAssets/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.target.BulkCreateTargets" pattern="POST|BulkCreateTargets/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.target.BulkSaveTargets" pattern="POST|BulkSaveTargets/*" stateful="false"/>
+                   	<command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.article.BulkCreateArticleTaxonomy" pattern="POST|BulkCreateArticleTaxonomy/*" stateful="false"/>
+
+                    <command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.article.GetArticleTaxonomyList" pattern="POST|GetArticleTaxonomyList/*" stateful="false"/>
+                    
+					<command implementation="com.cs.config.strategy.plugin.usecase.propertycollection.CreatePropertyCollection" pattern="POST|CreatePropertyCollection/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.propertycollection.GetPropertyCollection" pattern="POST|GetPropertyCollection/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.propertycollection.SavePropertyCollection" pattern="POST|SavePropertyCollection/*" stateful="false"/>
+                	<command implementation="com.cs.config.strategy.plugin.usecase.propertycollection.DeletePropertyCollection" pattern="POST|DeletePropertyCollection/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.propertycollection.GetAllPropertyCollection" pattern="POST|GetAllPropertyCollection/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.propertycollection.GetOrCreatePropertyCollections" pattern="POST|GetOrCreatePropertyCollections/*" stateful="false"/>
+
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.GetMultiClassificationArticleDetails" pattern="POST|GetMultiClassificationArticleDetails/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.asset.GetMultiClassificationAssetDetails" pattern="POST|GetMultiClassificationAssetDetails/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.target.GetMultiClassificationTargetDetails" pattern="POST|GetMultiClassificationTargetDetails/*" stateful="false"/>
+                    
+                    <command implementation="com.cs.config.strategy.plugin.usecase.campaign.GetCampaignWithoutKP" pattern="POST|GetCampaignWithoutKP/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.campaign.CreateCampaign" pattern="POST|CreateCampaign/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.campaign.DeleteCampaigns" pattern="POST|DeleteCampaigns/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.campaign.GetAllCampaigns" pattern="POST|GetAllCampaigns/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.campaign.GetCampaign" pattern="POST|GetCampaign/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.campaign.GetCampaigns" pattern="POST|GetCampaigns/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.campaign.GetCampaignsByIds" pattern="POST|GetCampaignsByIds/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.campaign.GetCampaignWithGlobalPermission" pattern="POST|GetCampaignWithGlobalPermission/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.campaign.GetMultiClassificationCampaignDetails" pattern="POST|GetMultiClassificationCampaignDetails/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.campaign.GetOrCreateCampaign" pattern="POST|GetOrCreateCampaign/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.campaign.SaveCampaign" pattern="POST|SaveCampaign/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.campaign.GetCampaignTree" pattern="POST|GetCampaignTree/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.campaign.GetAllMasterCampaigns" pattern="POST|GetAllMasterCampaigns/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.campaign.GetFilterAndSortDataForCampaign" pattern="POST|GetFilterAndSortDataForCampaign/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.campaign.GetAllSingleCampaigns" pattern="POST|GetAllSingleCampaigns/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.campaign.GetSingleCampaignByMasterCampaignId" pattern="POST|GetSingleCampaignByMasterCampaignId/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.campaign.GetCampaignWithLinkedKlasses" pattern="POST|GetCampaignWithLinkedKlasses/*" stateful="false"/>
+                    
+                    <command implementation="com.cs.config.strategy.plugin.usecase.textasset.GetTextAssetWithoutKP" pattern="POST|GetTextAssetWithoutKP/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.textasset.CreateTextAsset" pattern="POST|CreateTextAsset/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.textasset.DeleteTextAssets" pattern="POST|DeleteTextAssets/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.textasset.GetAllTextAssets" pattern="POST|GetAllTextAssets/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.textasset.GetTextAsset" pattern="POST|GetTextAsset/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.textasset.GetTextAssets" pattern="POST|GetTextAssets/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.textasset.GetTextAssetsByIds" pattern="POST|GetTextAssetsByIds/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.textasset.GetTextAssetWithGlobalPermission" pattern="POST|GetTextAssetWithGlobalPermission/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.textasset.GetMultiClassificationTextAssetDetails" pattern="POST|GetMultiClassificationTextAssetDetails/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.textasset.GetOrCreateTextAsset" pattern="POST|GetOrCreateTextAsset/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.textasset.SaveTextAsset" pattern="POST|SaveTextAsset/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.textasset.GetTextAssetTree" pattern="POST|GetTextAssetTree/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.textasset.GetAllMasterTextAssets" pattern="POST|GetAllMasterTextAssets/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.textasset.GetFilterAndSortDataForTextAsset" pattern="POST|GetFilterAndSortDataForTextAsset/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.textasset.GetTextAssetWithLinkedKlasses" pattern="POST|GetTextAssetWithLinkedKlasses/*" stateful="false"/>
+                    
+                    <command implementation="com.cs.config.strategy.plugin.usecase.promotion.CreatePromotion" pattern="POST|CreatePromotion/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.promotion.DeletePromotions" pattern="POST|DeletePromotions/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.promotion.GetAllPromotions" pattern="POST|GetAllPromotions/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.promotion.GetPromotionWithoutKP" pattern="POST|GetPromotionWithoutKP/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.promotion.GetPromotion" pattern="POST|GetPromotion/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.promotion.GetPromotions" pattern="POST|GetPromotions/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.promotion.GetPromotionsByIds" pattern="POST|GetPromotionsByIds/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.promotion.GetPromotionWithGlobalPermission" pattern="POST|GetPromotionWithGlobalPermission/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.promotion.GetMultiClassificationPromotionDetails" pattern="POST|GetMultiClassificationPromotionDetails/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.promotion.GetOrCreatePromotion" pattern="POST|GetOrCreatePromotion/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.promotion.SavePromotion" pattern="POST|SavePromotion/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.promotion.GetPromotionTree" pattern="POST|GetPromotionTree/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.promotion.GetFilterAndSortDataForPromotion" pattern="POST|GetFilterAndSortDataForPromotion/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.promotion.GetPromotionWithLinkedKlasses" pattern="POST|GetPromotionWithLinkedKlasses/*" stateful="false"/>
+                    
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.supplier.GetSupplierWithoutKP" pattern="POST|GetSupplierWithoutKP/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.supplier.CreateSupplier" pattern="POST|CreateSupplier/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.supplier.DeleteSuppliers" pattern="POST|DeleteSuppliers/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.supplier.GetAllSuppliers" pattern="POST|GetAllSuppliers/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.supplier.GetSupplier" pattern="POST|GetSupplier/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.supplier.GetSuppliers" pattern="POST|GetSuppliers/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.supplier.GetSuppliersByIds" pattern="POST|GetSuppliersByIds/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.supplier.GetSupplierWithGlobalPermission" pattern="POST|GetSupplierWithGlobalPermission/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.supplier.GetMultiClassificationSupplierDetails" pattern="POST|GetMultiClassificationSupplierDetails/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.supplier.GetOrCreateSupplier" pattern="POST|GetOrCreateSupplier/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.supplier.SaveSupplier" pattern="POST|SaveSupplier/*" stateful="false"/>
+                    
+                    <command implementation="com.cs.config.strategy.plugin.usecase.virtualcatalog.GetVirtualCatalogWithoutKP" pattern="POST|GetVirtualCatalogWithoutKP/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.virtualcatalog.CreateVirtualCatalog" pattern="POST|CreateVirtualCatalog/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.virtualcatalog.DeleteVirtualCatalogs" pattern="POST|DeleteVirtualCatalogs/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.virtualcatalog.GetVirtualCatalogWithGlobalPermission" pattern="POST|GetVirtualCatalogWithGlobalPermission/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.virtualcatalog.SaveVirtualCatalog" pattern="POST|SaveVirtualCatalog/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.virtualcatalog.GetOrCreateVirtualCatalog" pattern="POST|GetOrCreateVirtualCatalog/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.virtualcatalog.GetVirtualCatalogWithLinkedKlasses" pattern="POST|GetVirtualCatalogWithLinkedKlasses/*" stateful="false"/>
+
+                    <command implementation="com.cs.config.strategy.plugin.usecase.marketingarticle.GetMarketingArticleWithoutKP" pattern="POST|GetMarketingArticleWithoutKP/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.marketingarticle.GetMarketingArticle" pattern="POST|GetMarketingArticle/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.marketingarticle.SaveMarketingArticle" pattern="POST|SaveMarketingArticle/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.marketingarticle.CreateMarketingArticle" pattern="POST|CreateMarketingArticle/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.marketingarticle.DeleteMarketingArticle" pattern="POST|DeleteMarketingArticles/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.marketingarticle.GetOrCreateMarketingArticle" pattern="POST|GetOrCreateMarketingArticle/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.marketingarticle.GetMarketingArticleWithLinkedKlasses" pattern="POST|GetMarketingArticleWithLinkedKlasses/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.marketingarticle.GetConfigDetailsForUpdateMATaxonomiesAndSearchable" pattern="POST|GetConfigDetailsForUpdateMATaxonomiesAndSearchable/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.marketingarticle.GetConfigDetailsForCreateMarketingArticle" pattern="POST|GetConfigDetailsForCreateMarketingArticle/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.configdetails.instance.GetConfigDetailsForMarketingArticleInstanceTree" pattern="POST|GetConfigDetailsForMarketingArticleInstanceTree/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.marketingarticle.GetConfigDetailsOnMDMVariantCreate" pattern="POST|GetConfigDetailsOnMDMVariantCreate/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.marketingarticle.ConfigDetailsToPrepareVariantCreateData" pattern="POST|ConfigDetailsToPrepareVariantCreateData/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.marketingarticle.GetConfigDetailForMarketingVariantCreateOnConfigSave" pattern="POST|GetConfigDetailForMarketingVariantCreateOnConfigSave/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.marketingarticle.GetMarketingArticlesForMDMArticle" pattern="POST|GetMarketingArticlesForMDMArticle/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.marketingarticle.GetConfigDetailsForUpdateMAType" pattern="POST|GetConfigDetailsForUpdateMAType/*" stateful='false'/>
+					
+					<command implementation="com.cs.config.strategy.plugin.usecase.marketingbundle.GetOrCreateMarketingBundle" pattern="POST|GetOrCreateMarketingBundle/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.marketingbundle.DeleteMarketingBundle" pattern="POST|DeleteMarketingBundle/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.marketingbundle.GetMarketingBundleWithLinkedKlasses" pattern="POST|GetMarketingBundleWithLinkedKlasses/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.marketingbundle.GetMarketingBundle" pattern="POST|GetMarketingBundle/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.marketingbundle.CreateMarketingBundle" pattern="POST|CreateMarketingBundle/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.marketingbundle.SaveMarketingBundle" pattern="POST|SaveMarketingBundle/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.relationship.GetTargetKlassesWithUnitTagId" pattern="POST|GetTargetKlassesWithUnitTagId/*" stateful="false"/>
+					
+					<command implementation="com.cs.config.strategy.plugin.usecase.makeup.GetOrCreateMakeup" pattern="POST|GetOrCreateMakeup/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.makeup.DeleteMakeup" pattern="POST|DeleteMakeup/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.makeup.GetMakeupWithLinkedKlasses" pattern="POST|GetMakeupWithLinkedKlasses/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.makeup.GetMakeup" pattern="POST|GetMakeup/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.makeup.CreateMakeup" pattern="POST|CreateMakeup/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.makeup.SaveMakeup" pattern="POST|SaveMakeup/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.makeup.GetAllMakeupKlassesWithPermission" pattern="POST|GetAllMakeupKlassesWithPermission/*" stateful="false"/>
+					<command implementation="com.cs.runtime.strategy.plugin.usecase.marketingarticleinstance.GetConfigDetailsForMakeupStepperView" pattern="POST|GetConfigDetailsForMakeupStepperView/*" stateful="false"/>
+					<command implementation="com.cs.runtime.strategy.plugin.usecase.marketingarticleinstance.GetConfigDetailsForSaveMakeups" pattern="POST|GetConfigDetailsForSaveMakeups/*" stateful="false"/>
+					
+					<command implementation="com.cs.config.strategy.plugin.usecase.makeup.GetMakeup" pattern="POST|GetMakeup/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.makeup.SaveMakeup" pattern="POST|SaveMakeup/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.makeup.CreateMakeup" pattern="POST|CreateMakeup/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.makeup.DeleteMakeup" pattern="POST|DeleteMakeup/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.makeup.GetOrCreateMakeup" pattern="POST|GetOrCreateMakeup/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.makeup.GetMakeupWithLinkedKlasses" pattern="POST|GetMakeupWithLinkedKlasses/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.makeup.GetConfigDetailsForMakeupVersionRollback" pattern="POST|GetConfigDetailsForMakeupVersionRollback/*" stateful="false"/>
+					
+					<command implementation="com.cs.config.strategy.plugin.usecase.presettemplate.GetPresetTemplate" pattern="POST|GetPresetTemplate/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.presettemplate.SavePresetTemplate" pattern="POST|SavePresetTemplate/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.presettemplate.CreatePresetTemplate" pattern="POST|CreatePresetTemplate/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.presettemplate.DeletePresetTemplate" pattern="POST|DeletePresetTemplate/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.presettemplate.GetOrCreatePresetTemplate" pattern="POST|GetOrCreatePresetTemplate/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.presettemplate.GetPresetTemplateWithLinkedKlasses" pattern="POST|GetPresetTemplateWithLinkedKlasses/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.presettemplate.GetConfigDetailsForConfigurationTab" pattern="POST|GetConfigDetailsForConfigurationTab/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.presettemplate.GetConfigDetailsForMakeupTab" pattern="POST|GetConfigDetailsForMakeupTab/*" stateful="false"/>
+					
+					
+					<command implementation="com.cs.runtime.strategy.plugin.usecase.marketingarticleinstance.GetConfigDetailsForPromotionalSetMatchAndMerge" pattern="POST|GetConfigDetailsForPromotionalSetMatchAndMerge/*" stateful="false"/>
+					<command implementation="com.cs.runtime.strategy.plugin.usecase.marketingarticleinstance.GetArticleKlassesForMarketingContent" pattern="POST|GetArticleKlassesForMarketingContent/*" stateful="false"/>
+					<command implementation="com.cs.runtime.strategy.plugin.usecase.marketingarticleinstance.GetConfigDetailsForGetPromotionaSetBuckets" pattern="POST|GetConfigDetailsForGetPromotionaSetBuckets/*" stateful="false"/>
+					<command implementation="com.cs.runtime.strategy.plugin.usecase.marketingarticleinstance.GetConfigDetailsForCreatePromotionalSet" pattern="POST|GetConfigDetailsForCreatePromotionalSet/*" stateful="false"/>
+					<command implementation="com.cs.runtime.strategy.plugin.usecase.marketingarticleinstance.GetReferencedKlassesAndTaxonomies" pattern="POST|GetReferencedKlassesAndTaxonomies/*" stateful="false"/>
+
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.supplier.GetSupplierTree" pattern="POST|GetSupplierTree/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.supplier.GetAllMasterSuppliers" pattern="POST|GetAllMasterSuppliers/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.taxonomy.supplier.GetFilterAndSortDataForSupplier" pattern="POST|GetFilterAndSortDataForSupplier/*" stateful="false"/>
+                    
+                    <command implementation="com.cs.config.strategy.plugin.usecase.module.GetAllowedModuleEntities" pattern="POST|GetAllowedModuleEntities/*" stateful="false"/>
+
+                    <command implementation="com.cs.config.strategy.plugin.usecase.variantcontext.CreateVariantContext" pattern="POST|CreateVariantContext/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.variantcontext.GetVariantContext" pattern="POST|GetVariantContext/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.variantcontext.SaveVariantContext" pattern="POST|SaveVariantContext/*" stateful="false"/>
+                	<command implementation="com.cs.config.strategy.plugin.usecase.variantcontext.DeleteVariantContext" pattern="POST|DeleteVariantContext/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.variantcontext.GetAllVariantContext" pattern="POST|GetAllVariantContext/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.variantcontext.GetConfigDetailsForGetLinkedInstancesQuicklist" pattern="POST|GetConfigDetailsForGetLinkedInstancesQuicklist/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.variantcontext.GetOrCreateVariantContexts" pattern="POST|GetOrCreateVariantContexts/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.variantcontext.BulkSaveVariantContexts" pattern="POST|BulkSaveVariantContexts/*" stateful="false"/>
+					
+					<command implementation="com.cs.config.strategy.plugin.usecase.globalpermission.GetGlobalPermissionsForRole" pattern="POST|GetGlobalPermissionsForRole/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.globalpermission.SaveGlobalPermissionsForRole" pattern="POST|SaveGlobalPermissionsForRole/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.globalpermission.GetPropertyCollectionsForEntity" pattern="POST|GetPropertyCollectionsForEntity/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.globalpermission.GetPropertiesOfPropertyCollection" pattern="POST|GetPropertiesOfPropertyCollection/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.globalpermission.GetGlobalPermissionForEntities" pattern="POST|GetGlobalPermissionForEntities/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.globalpermission.CreateOrSaveGlobalPermission" pattern="POST|CreateOrSaveGlobalPermission/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.globalpermission.GetGlobalPermissionWithAllowedTemplates" pattern="POST|GetGlobalPermissionWithAllowedTemplates/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.globalpermission.GetGlobalPermissionForRuntimeEntities" pattern="POST|GetGlobalPermissionForRuntimeEntities/*" stateful="false"/>
+					
+					<command implementation="com.cs.config.strategy.plugin.usecase.timelineevents.DeleteTimelineEvents" pattern="POST|DeleteTimelineEvents/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.timelineevents.CreateTimelineEvent" pattern="POST|CreateTimelineEvent*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.timelineevents.GetTimelineEvent" pattern="POST|GetTimelineEvent/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.timelineevents.GetAllTimelineEvent" pattern="POST|GetAllTimelineEvent/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.timelineevents.SaveTimelineEvent" pattern="POST|SaveTimelineEvent/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.timelineevents.GetOrCreateTimelineEvent" pattern="POST|GetOrCreateTimelineEvent/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.timelineevents.GetGridTimelineEvents" pattern="POST|GetGridTimelineEvents/*" stateful="false"/> 
+                   
+                    <command implementation="com.cs.config.strategy.plugin.usecase.template.GetTemplate" pattern="POST|GetTemplate/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.template.BulkSaveTemplate" pattern="POST|BulkSaveTemplate/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.template.SaveTemplate" pattern="POST|SaveTemplate/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.template.GetAllTemplates" pattern="POST|GetAllTemplates/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.template.DeleteTemplate" pattern="POST|DeleteTemplate/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.template.CreateCustomTemplate" pattern="POST|CreateCustomTemplate/*" stateful="false"/>
+                    <command implementation="com.cs.runtime.strategy.plugin.usecase.allowedtypes.GetAllowedTypesByBaseType" pattern="POST|GetAllowedTypesByBaseType/*" stateful="false"/>
+                    <command implementation="com.cs.runtime.strategy.plugin.usecase.allowedtypes.GetNonRootTaxonomiesForAllowedTypes" pattern="POST|GetNonRootTaxonomiesForAllowedTypes/*" stateful="false"/>
+
+                    <command implementation="com.cs.config.strategy.plugin.usecase.permission.GetTemplatePermission" pattern="POST|GetTemplatePermission/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.permission.SaveTemplatePermission" pattern="POST|SaveTemplatePermission/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.permission.GetNatureKlassPermission" pattern="POST|GetNatureKlassPermission/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.permission.GetCoverFlowForNatureKlassWithDownloadPermission" pattern="POST|GetCoverFlowForNatureKlassWithDownloadPermission/*" stateful="false"/>
+                    
+                    <command implementation="com.cs.config.strategy.plugin.usecase.endpoint.CreateEndpoint" pattern="POST|CreateEndpoint/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.endpoint.GetEndpoint" pattern="POST|GetEndpoint/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.endpoint.SaveEndpoint" pattern="POST|SaveEndpoint/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.endpoint.DeleteEndpoint" pattern="POST|DeleteEndpoint/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.endpoint.GetAllEndpoints" pattern="POST|GetAllEndpoints/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.endpoint.GetAllEndpointIndexes" pattern="POST|GetAllEndpointIndexes/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.endpoint.GetGridEndpoints" pattern="POST|GetGridEndpoints/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.endpoint.GetAllMappedEndpoints" pattern="POST|GetAllMappedEndpoints/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.endpoint.GetAllMappedEndpointByEndpointId" pattern="POST|GetAllMappedEndpointByEndpointId/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.endpoint.GetAllMappingByEndpointId" pattern="POST|GetAllMappingByEndpointId/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.endpoint.GetOffboardingEndpointForUser" pattern="POST|GetOffboardingEndpointForUser/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.endpoint.GetOrCreateEndpoint" pattern="POST|GetOrCreateEndpoint/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.endpoint.GetEndpointInfoForDashboard" pattern="POST|GetEndpointInfoForDashboard/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.endpoint.GetConfigDetailsForEndpoint" pattern="POST|GetConfigDetailsForEndpoint/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.endpoint.GetAllOffboardingEndpointsForUser" pattern="POST|GetAllOffboardingEndpointsForUser/*" stateful="false"/>					
+					<command implementation="com.cs.config.strategy.plugin.usecase.endpoint.GetAllowedEndpointsForRole" pattern="POST|GetAllowedEndpointsForRole/*" stateful="false"/>						
+					<command implementation="com.cs.config.strategy.plugin.usecase.endpoint.GetEndpointsBySystem" pattern="POST|GetEndpointsBySystem/*" stateful="false"/>	
+					<command implementation="com.cs.config.strategy.plugin.usecase.endpoint.GetEndpointsForDashboardByUserId" pattern="POST|GetEndpointsForDashboardByUserId/*" stateful="false"/>	
+					<command implementation="com.cs.config.strategy.plugin.usecase.endpoint.GetEndpointsForDashboardBySystemId" pattern="POST|GetEndpointsForDashboardBySystemId/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.endpoint.GetAllEndpointsByType" pattern="POST|GetAllEndpointsByType/*" stateful="false"/>
+					
+					<command implementation="com.cs.imprt.config.strategy.plugin.usecase.vertextypes.CreateOnboardingVertexTypes" pattern="POST|CreateOnboardingVertexTypes/*"/>
+
+                    <command implementation="com.cs.config.strategy.plugin.usecase.task.CreateTask" pattern="POST|CreateTask/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.task.GetAllTask" pattern="POST|GetAllTask/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.task.GetTask" pattern="POST|GetTask/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.task.DeleteTasks" pattern="POST|DeleteTasks/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.task.SaveTask" pattern="POST|SaveTask/*" stateful="false"/>
+                    <command implementation="com.cs.runtime.strategy.plugin.usecase.klassinstance.GetConfigDetailsForTasksTab" pattern="POST|GetConfigDetailsForTasksTab/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.task.GetConfigDetailsByTaskType" pattern="POST|GetConfigDetailsByTaskType/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.task.GetGridTasks" pattern="POST|GetGridTasks/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.task.GetKlassInfoOfLinkedContent" pattern="POST|GetKlassInfoOfLinkedContent/*" stateful="false"/>
+					
+					
+                    <command implementation="com.cs.config.strategy.plugin.usecase.governancetask.CreateGovernanceTask" pattern="POST|CreateGovernanceTask/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.governancetask.GetAllGovernanceTask" pattern="POST|GetAllGovernanceTask/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.governancetask.GetGovernanceTask" pattern="POST|GetGovernanceTask/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.governancetask.DeleteGovernanceTasks" pattern="POST|DeleteGovernanceTasks/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.governancetask.SaveGovernanceTask" pattern="POST|SaveGovernanceTask/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.governancetask.GetGridGovernanceTasks" pattern="POST|GetGridGovernanceTasks/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.governancerule.GetConfigDetailsByGovernanceTaskType" pattern="POST|GetConfigDetailsByGovernanceTaskType/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.governancerule.DeleteKeyPerformanceIndex" pattern="POST|DeleteKeyPerformanceIndex/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.governancerule.GetAllKeyPerformanceIndex" pattern="POST|GetAllKeyPerformanceIndex/*" stateful="false"/>
+ 					<command implementation="com.cs.config.strategy.plugin.usecase.permission.GetGlobalPermissionForEvents" pattern="POST|GetGlobalPermissionForEvents/*" stateful="false"/>
+
+                 
+
+                    <command implementation="com.cs.config.strategy.plugin.usecase.dynamichierarchy.CreateDynamicRelationshipHierarchy" pattern="POST|CreateDynamicRelationshipHierarchy/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.dynamichierarchy.GetDynamicRelationshipHierarchy" pattern="POST|GetDynamicRelationshipHierarchy/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.dynamichierarchy.GetDropDownForRelationshipHierarchy" pattern="POST|GetDropDownForRelationshipHierarchy/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.dynamichierarchy.GetAllDynamicRelationshipHierarchy" pattern="POST|GetAllDynamicRelationshipHierarchy/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.dynamichierarchy.GetKlassRelationshipHierarchy" pattern="POST|GetKlassRelationshipHierarchy/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.dynamichierarchy.SaveDynamicRelationshipHierarchy" pattern="POST|SaveDynamicRelationshipHierarchy/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.dynamichierarchy.SaveSelectedDropDownKlassInHierarchy" pattern="POST|SaveSelectedDropDownKlassInHierarchy/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.dynamichierarchy.DeleteRelationshipHierarchy" pattern="POST|DeleteRelationshipHierarchy/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.dynamichierarchy.GetKlassesForDynamicHierarchy" pattern="POST|GetKlassesForDynamicHierarchy/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.dynamichierarchy.GetRelationshipHierarchyNodeDetails" pattern="POST|GetRelationshipHierarchyNodeDetails/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.dynamichierarchy.GetKlassRelationshipDetails" pattern="POST|GetKlassRelationshipDetails/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.dynamichierarchy.GetConfigDetailsForHierarchy" pattern="POST|GetConfigDetailsForHierarchy/*" stateful="false"/>
+
+                    <command implementation="com.cs.config.strategy.plugin.usecase.staticcollection.CreateCollectionNode" pattern="POST|CreateCollectionNode/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.staticcollection.DeleteCollectionNode" pattern="POST|DeleteCollectionNode/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.staticcollection.MoveStaticCollectionHierarchy" pattern="POST|MoveStaticCollectionHierarchy/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.staticcollection.GetStaticCollectionHierarchy" pattern="POST|GetStaticCollectionHierarchy/*" stateful="false"/>
+				    <command implementation="com.cs.config.strategy.plugin.usecase.staticcollection.SaveStaticCollectionDetails" pattern="POST|SaveStaticCollectionDetails/*" stateful="false"/>
+				    <command implementation="com.cs.config.strategy.plugin.usecase.staticcollection.GetStaticCollectionDetails" pattern="POST|GetStaticCollectionDetails/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.staticcollection.SaveStaticCollectionNode" pattern="POST|SaveStaticCollectionNode/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.staticcollection.GetSectionInfoForCollection" pattern="POST|GetSectionInfoForCollection/*" stateful="false"/>
+
+                    <command implementation="com.cs.config.strategy.plugin.usecase.tag.GetGridTags" pattern="POST|GetGridTags/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.base.klass.GetConfigDetailsForSwitchType" pattern="POST|GetConfigDetailsForSwitchType/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.base.klass.GetConfigDetailsToGetSubContents" pattern="POST|GetConfigDetailsToGetSubContents/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.base.klass.GetAddedPropertiesDiff" pattern="POST|GetAddedPropertiesDiff/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.GetConfigDetailsForBulkPropagation" pattern="POST|GetConfigDetailsForBulkPropagation/*" stateful="false"/>
+
+                    <command implementation="com.cs.config.strategy.plugin.usecase.processevent.CreateProcessEvent" pattern="POST|CreateProcessEvent/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.processevent.GetProcessEvent" pattern="POST|GetProcessEvent/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.processevent.SaveProcessEvent" pattern="POST|SaveProcessEvent/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.processevent.DeleteProcessEvent" pattern="POST|DeleteProcessEvent/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.processevent.GetProcessEvents" pattern="POST|GetProcessEvents/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.processevent.GetProcessEventByEndpointId" pattern="POST|GetProcessEventByEndpointId/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.processevent.GetProcessByConfig" pattern="POST|GetProcessByConfig/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.processevent.BulkSaveProcessEvent" pattern="POST|BulkSaveProcessEvent/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.processevent.GetGridProcessEvents" pattern="POST|GetGridProcessEvents/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.processevent.GetProcessDefinitionById" pattern="POST|GetProcessDefinitionById/*" stateful="false"/>
+                    
+                    
+					<command implementation="com.cs.config.strategy.plugin.usecase.component.GetRuleIdsFromComponent" pattern="POST|GetRuleIdsFromComponent/*" stateful="false"/>
+                    <command implementation="com.cs.export.config.strategy.plugin.usecase.icons.GetAllIconIds" pattern="POST|GetAllIconsIds/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.configdetails.instance.GetConfigDetailsForInstanceTreeGet" pattern="POST|GetConfigDetailsForInstanceTreeGet/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.configdetails.instance.GetConfigDetailsForInstanceBasedOnTask" pattern="POST|GetConfigDetailsForInstanceBasedOnTask/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.configdetails.instance.GetConfigDetailsForQuicklist" pattern="POST|GetConfigDetailsForQuicklist/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.configdetails.instance.PostConfigDetailsForGetInstanceTree" pattern="POST|PostConfigDetailsForGetInstanceTree/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.configdetails.instance.PostConfigDetailsForGetStaticCollection" pattern="POST|PostConfigDetailsForGetStaticCollection/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.configdetails.instance.PostConfigDetailsForGetContextualTab" pattern="POST|PostConfigDetailsForGetContextualTab/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.configdetails.instance.PostConfigDetailsForRelationships" pattern="POST|PostConfigDetailsForRelationships/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.configdetails.instance.GetConfigDetailsForContextualDataTransfer" pattern="POST|GetConfigDetailsForContextualDataTransfer/*" stateful="false"/>
+					
+                    <command implementation="com.cs.config.strategy.plugin.usecase.offboardingnaturerelationship.GetAllSideKlassIdsForNatureRelationship" pattern="POST|GetAllSideKlassIdsForNatureRelationship/*" stateful="false"/>
+                   
+                    <command implementation="com.cs.config.strategy.plugin.usecase.permission.GetGlobalPermissionForSingleEntity" pattern="POST|GetGlobalPermissionForSingleEntity/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.GetTypeKlassById" pattern="POST|GetTypeKlassById/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.relationship.GetRootRelationship" pattern="POST|GetRootRelationship/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.relationship.GetRootRelationshipForDiImport" pattern="POST|GetRootRelationshipsByIdsForDiImport/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.relationship.GetRootRelationshipIdByCode" pattern="POST|GetRootRelationshipIdByCode/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.permission.GetGlobalPermissionForMultipleInstances" pattern="POST|GetGlobalPermissionForMultipleInstances/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.permission.GetGlobalPermissionForMultipleNatureTypes" pattern="POST|GetGlobalPermissionForMultipleNatureTypes/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.historyversions.GetKlassAndTaxonomyInfoForVersions" pattern="POST|GetKlassAndTaxonomyInfoForVersions/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.base.GetConfigData" pattern="POST|GetConfigData/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.calculatedattribute.GetAllowedAttributesForCalculatedAttribute" pattern="POST|GetAllowedAttributesForCalculatedAttribute/*" stateful="false"/>
+
+					<command implementation="com.cs.config.strategy.plugin.usecase.mapping.CreateMapping" pattern="POST|CreateMapping/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.mapping.GetMapping" pattern="POST|GetMapping/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.mapping.SaveMapping" pattern="POST|SaveMapping/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.mapping.DeleteMapping" pattern="POST|DeleteMapping/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.mapping.GetMappings" pattern="POST|GetAllMapping/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.mapping.GetAllMappingIndexes" pattern="POST|GetAllMappingIndexes/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.mapping.BulkGetMapping" pattern="POST|BulkGetMapping/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.mapping.BulkSaveMapping" pattern="POST|BulkSaveMapping/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.mapping.GetAllMappedMappings" pattern="POST|GetAllMappedMappings/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.mapping.GetKlassesForMapping" pattern="POST|GetKlassesForMapping/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.mapping.BulkSaveMappings" pattern="POST|BulkSaveMappings/*" stateful="false"/>
+					
+					
+					<command implementation="com.cs.config.strategy.plugin.usecase.configdetails.GetAllNatureKlassIds" pattern="POST|GetAllNatureKlassIds/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.configdetails.GetAllAttributeIdsByType" pattern="POST|GetAllAttributeIdsByType/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.configdetails.GetAllBooleanTags" pattern="POST|GetAllBooleanTags/*" stateful="false"/>
+					
+					<command implementation="com.cs.config.strategy.plugin.usecase.cache.DeleteConfigDetailCache" pattern="POST|DeleteConfigDetailCache/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.task.GetConfigDetailsForTasksDashboard" pattern="POST|GetConfigDetailsForTasksDashboard/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.notification.GetConfigDetailsForNotification" pattern="POST|GetConfigDetailsForNotification/*" stateful="false"/>
+                    
+                    <command implementation="com.cs.config.strategy.plugin.usecase.versioncount.GetVersionCount" pattern="POST|GetVersionCount/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.klass.GetConfigDetailsForRelationshipPagination" pattern="POST|GetConfigDetailsForRelationshipPagination/*" stateful="false"/>
+					<command implementation="com.cs.runtime.strategy.plugin.usecase.base.klassinstance.GetConfigDetailsForGetKlassInstancesToCompare" pattern="POST|GetConfigDetailsForGetKlassInstancesToCompare/*" stateful="false"/>
+					<command implementation="com.cs.runtime.strategy.plugin.usecase.base.klassinstance.GetConfigDetailsForKlassTaxonomyRelationshipQuicklist" pattern="POST|GetConfigDetailsForKlassTaxonomyRelationshipQuicklist/*" stateful="false"/>
+
+                    <command implementation="com.cs.runtime.strategy.plugin.usecase.klassinstance.variant.GetConfigDetailsForGetPropertiesVariantInstancesInTableView" pattern="POST|GetConfigDetailsForGetPropertiesVariantInstancesInTableView/*" stateful="false"/>
+                    
+                    <command implementation="com.cs.config.strategy.plugin.usecase.offboarding.GetPIDSingleArticleKlassIds" pattern="POST|GetPIDSingleArticleKlassIds/*" stateful="false"/>
+
+                	<command implementation="com.cs.runtime.strategy.plugin.usecase.klassinstance.clone.GetConfigDetailsForCreateKlassInstanceClone" pattern="POST|GetConfigDetailsForCreateKlassInstanceClone/*" stateful="false"/>
+               		<command implementation="com.cs.runtime.strategy.plugin.usecase.klassinstance.clone.GetConfigDetailsForCreateBulkClone" pattern="POST|GetConfigDetailsForCreateBulkClone/*" stateful="false"/>
+               		<command implementation="com.cs.runtime.strategy.plugin.usecase.klassinstance.clone.GetKlassInstancePropertiesForClone" pattern="POST|GetKlassInstancePropertiesForClone/*" stateful="false"/>
+               		<command implementation="com.cs.config.strategy.plugin.usecase.translations.GetPropertiesTranslations" pattern="POST|GetPropertiesTranslations/*" stateful="false"/>
+               		<command implementation="com.cs.config.strategy.plugin.usecase.translations.SavePropertiesTranslations" pattern="POST|SavePropertiesTranslations/*" stateful="false"/>
+               		<command implementation="com.cs.config.strategy.plugin.usecase.translations.CreateOrSavePropertiesTranslations" pattern="POST|CreateOrSavePropertiesTranslations/*" stateful="false"/>
+               		<command implementation="com.cs.config.strategy.plugin.usecase.translations.GetTagTranslations" pattern="POST|GetTagTranslations/*" stateful="false"/>
+               		<command implementation="com.cs.config.strategy.plugin.usecase.translations.GetRelationshipTranslations" pattern="POST|GetRelationshipTranslations/*" stateful="false"/>
+               		<command implementation="com.cs.config.strategy.plugin.usecase.translations.SaveRelationshipTranslations" pattern="POST|SaveRelationshipTranslations/*" stateful="false"/>
+               		<command implementation="com.cs.config.strategy.plugin.usecase.translations.CreateOrSaveRelationshipTranslations" pattern="POST|CreateOrSaveRelationshipTranslations/*" stateful="false"/>
+               		<command implementation="com.cs.config.strategy.plugin.usecase.translations.GetOrCreateStaticTranslations" pattern="POST|GetOrCreateStaticTranslations/*" stateful="false"/>
+               		<command implementation="com.cs.config.strategy.plugin.usecase.translations.GetStaticTranslations" pattern="POST|GetStaticTranslations/*" stateful="false"/>
+               		<command implementation="com.cs.config.strategy.plugin.usecase.translations.SaveStaticTranslations" pattern="POST|SaveStaticTranslations/*" stateful="false"/>
+               		<command implementation="com.cs.runtime.strategy.plugin.usecase.translations.GetStaticTranslationsForRuntime" pattern="POST|GetStaticTranslationsForRuntime/*" stateful="false"/>
+
+
+               		<command implementation="com.cs.config.strategy.plugin.usecase.governancerule.GetGovernanceRulesByKlassAndTaxonomyIds" pattern="POST|GetGovernanceRulesByKlassAndTaxonomyIds/*" stateful="false"/>
+               		<command implementation="com.cs.config.strategy.plugin.usecase.governancerule.CreateKeyPerformanceIndex" pattern="POST|CreateKeyPerformanceIndex/*" stateful="false"/>
+               		<command implementation="com.cs.config.strategy.plugin.usecase.governancerule.GetKeyPerformanceIndex" pattern="POST|GetKeyPerformanceIndex/*" stateful="false"/>
+               		<command implementation="com.cs.config.strategy.plugin.usecase.governancerule.SaveKeyPerformanceIndex" pattern="POST|SaveKeyPerformanceIndex/*" stateful="false"/>
+               		<command implementation="com.cs.config.strategy.plugin.usecase.governancerule.GetConfigDetailsForGetStatistics" pattern="GetConfigDetailsForGetStatistics/*" stateful="false"/>
+               		<command implementation="com.cs.config.strategy.plugin.usecase.governancerule.GetConfigDetailsForGetAllStatistics" pattern="GetConfigDetailsForGetAllStatistics/*" stateful="false"/>
+               		<command implementation="com.cs.config.strategy.plugin.usecase.governancerule.GetConfigDetailsForGetStatisticsForContent" pattern="GetConfigDetailsForGetStatisticsForContent/*" stateful="false"/>
+               		<command implementation="com.cs.config.strategy.plugin.usecase.governancerule.BulkSaveKpiRule" pattern="POST|BulkSaveKpiRule/*" stateful="false"/>
+               		
+               		<command implementation="com.cs.config.strategy.plugin.usecase.organization.CreateOrganization" pattern="CreateOrganization/*" stateful="false"/>
+               		<command implementation="com.cs.config.strategy.plugin.usecase.organization.GetOrganization" pattern="GetOrganization/*" stateful="false"/>
+               		<command implementation="com.cs.config.strategy.plugin.usecase.organization.GetAllOrganizations" pattern="GetAllOrganizations/*" stateful="false"/>
+               		<command implementation="com.cs.config.strategy.plugin.usecase.organization.SaveOrganization" pattern="SaveOrganization/*" stateful="false"/>
+               		<command implementation="com.cs.config.strategy.plugin.usecase.organization.DeleteOrganizations" pattern="DeleteOrganizations/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.organization.GetOrCreateStandardOrganizations" pattern="GetOrCreateStandardOrganizations/*" stateful="false"/>
+               		<command implementation="com.cs.config.strategy.plugin.usecase.entity.CheckForDuplicateCode" pattern="POST|CheckForDuplicateCode/*" stateful="false"/>
+               		<command implementation="com.cs.config.strategy.plugin.usecase.system.CreateSystem" pattern="CreateSystem/*" stateful="false"/>
+               		<command implementation="com.cs.config.strategy.plugin.usecase.system.GetPaginatedSystems" pattern="GetPaginatedSystems/*" stateful="false"/>
+                	<command implementation="com.cs.config.strategy.plugin.usecase.system.GetOrCreateSystems" pattern="GetOrCreateSystems/*" stateful="false"/>
+               	
+                	<command implementation="com.cs.config.strategy.plugin.usecase.tabs.GetOrCreateTab" pattern="POST|GetOrCreateTab/*" stateful="false"/>
+                	<command implementation="com.cs.config.strategy.plugin.usecase.tabs.CreateTab" pattern="POST|CreateTab/*" stateful="false"/>
+                	<command implementation="com.cs.config.strategy.plugin.usecase.tabs.DeleteTabs" pattern="POST|DeleteTabs/*" stateful="false"/>
+                	<command implementation="com.cs.config.strategy.plugin.usecase.tabs.GetAllTabs" pattern="POST|GetAllTabs/*" stateful="false"/>
+                	<command implementation="com.cs.config.strategy.plugin.usecase.tabs.GetTab" pattern="POST|GetTab/*" stateful="false"/>
+                	<command implementation="com.cs.config.strategy.plugin.usecase.tabs.SaveTab" pattern="POST|SaveTab/*" stateful="false"/>
+                	<command implementation="com.cs.config.strategy.plugin.usecase.tabs.BulkSaveTab" pattern="POST|BulkSaveTab/*" stateful="false"/>
+                	<command implementation="com.cs.runtime.strategy.plugin.usecase.klassinstance.GetConfigDetailsForCustomTab" pattern="POST|GetConfigDetailsForCustomTab/*" stateful="false"/>
+                	<command implementation="com.cs.runtime.strategy.plugin.usecase.klassinstance.GetConfigDetailsWithoutPermissions" pattern="POST|GetConfigDetailsWithoutPermissions/*" stateful="false"/>
+                	<command implementation="com.cs.runtime.strategy.plugin.usecase.klassinstance.GetIdentifierAttributesForTypes" pattern="POST|GetConfigDetailsForCustomTab/*" stateful="false"/>
+                	<command implementation="com.cs.runtime.strategy.plugin.usecase.klassinstance.GetConfigDetailsForOverviewTab" pattern="POST|GetConfigDetailsForOverviewTab/*" stateful="false"/>
+                	<command implementation="com.cs.runtime.strategy.plugin.usecase.klassinstance.GetConfigDetailsForSaveRelationshipInstance" pattern="POST|GetConfigDetailsForSaveRelationshipInstance/*" stateful="false"/>
+                	<command implementation="com.cs.runtime.strategy.plugin.usecase.klassinstance.GetConfigDetailsForRelationshipRestore" pattern="POST|GetConfigDetailsForRelationshipRestore/*" stateful="false"/>
+
+                	<command implementation="com.cs.runtime.strategy.plugin.usecase.datatransfer.GetConfigDetailsForPrepareDataForRelationshipDataTransfer" pattern="POST|GetConfigDetailsForPrepareDataForRelationshipDataTransfer/*" stateful="false"/>
+                	<command implementation="com.cs.runtime.strategy.plugin.usecase.datatransfer.GetConfigDetailsForPrepareDataForContextualDataTransfer" pattern="POST|GetConfigDetailsForPrepareDataForContextualDataTransfer/*" stateful="false"/>
+
+                	<command implementation="com.cs.runtime.strategy.plugin.usecase.klassinstance.GetDataLanguageForKlassInstance" pattern="POST|GetDataLanguageForKlassInstance/*" stateful="false"/>
+
+                	<command implementation="com.cs.runtime.strategy.plugin.usecase.marketingarticleinstance.GetConfigDetailsForMarketingArticleOverviewTab" pattern="POST|GetMarketingArticleConfigDetailsForOverviewTab/*" stateful="false"/>
+                	<command implementation="com.cs.runtime.strategy.plugin.usecase.marketingarticleinstance.GetConfigDetailsForMarketingArticleCustomTab" pattern="POST|GetConfigDetailsForMarketingArticleCustomTab/*" stateful="false"/>
+                	<command implementation="com.cs.runtime.strategy.plugin.usecase.marketingarticleinstance.GetConfigDetailsForMarketingArticleEventsTab" pattern="POST|GetConfigDetailsForMarketingArticleEventsTab/*" stateful="false"/>
+                	<command implementation="com.cs.runtime.strategy.plugin.usecase.marketingarticleinstance.GetConfigDetailsForMarketingArticleTasksTab" pattern="POST|GetConfigDetailsForMarketingArticleTasksTab/*" stateful="false"/>
+                	<command implementation="com.cs.runtime.strategy.plugin.usecase.marketingarticleinstance.GetConfigDetailsForMarketingArticleTimelineTab" pattern="POST|GetConfigDetailsForMarketingArticleTimelineTab/*" stateful="false"/>
+                	<command implementation="com.cs.runtime.strategy.plugin.usecase.marketingbundleinstance.GetConfigDetailsForFatherArticleRelationship" pattern="POST|GetConfigDetailsForFatherArticleRelationship/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.presettemplate.GetConfigDetailsForPresetTab" pattern="POST|GetConfigDetailsForPresetTab/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.presettemplate.GetDeletedPropertiesForPresetTemplate" pattern="POST|GetDeletedPropertiesForPresetTemplate/*" stateful="false"/>
+
+                	<command implementation="com.cs.config.strategy.plugin.usecase.permission.GetPermission" pattern="POST|GetPermission/*" stateful="false"/>
+                	<command implementation="com.cs.config.strategy.plugin.usecase.permission.GetPermissionWithHierarchy" pattern="POST|GetPermissionWithHierarchy/*" stateful="false"/>
+                	
+                	<command implementation="com.cs.config.strategy.plugin.usecase.dashboardtabs.GetOrCreateDashboardTab" pattern="POST|GetOrCreateDashboardTab/*" stateful="false"/>
+                	<command implementation="com.cs.config.strategy.plugin.usecase.dashboardtabs.CreateDashboardTab" pattern="POST|CreateDashboardTab/*" stateful="false"/>
+					<command implementation="com.cs.runtime.strategy.plugin.usecase.dashboardtabs.GetAllDashboardTabs" pattern="GetAllDashboardTabs/*" stateful="false"/>
+                	
+					<command implementation="com.cs.config.strategy.plugin.usecase.entity.GetConfigEntityIdsByEntityType" pattern="GetConfigEntityIdsByEntityType/*" stateful="false"/>
+
+                	
+                	<command implementation="com.cs.config.strategy.plugin.usecase.dataintegration.GetExportDataForDataIntegration" pattern="POST|GetExportDataForDataIntegration/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.dataintegration.GetConsumerComponents" pattern="POST|GetConsumerComponents/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.dataintegration.GetTransferProcess" pattern="POST|GetTransferProcess/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.dataintegration.GetIdsByCodes" pattern="POST|GetIdsByCodes/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.dataintegration.GetLevelIdsByTaxonomyCodes" pattern="POST|GetLevelIdsByTaxonomyCodes/*" stateful="false"/>
+                    
+                    <command implementation="com.cs.export.config.strategy.plugin.usecase.user.GetEndpointIdsOfCustomTypeProcessForUser" pattern="POST|GetEndpointIdsOfCustomTypeProcessForUser/*" stateful="false"/>
+                    <command implementation="com.cs.imprt.config.strategy.plugin.usecase.process.GetEndpointIdsOfCustomTypeProcess" pattern="POST|GetEndpointIdsOfCustomTypeProcess/*" stateful="false"/>
+                    <command implementation="com.cs.imprt.config.strategy.plugin.usecase.process.GetKlassWithoutKPByCode" pattern="POST|GetKlassWithoutKPByCode/*" stateful="false"/>
+
+					<command implementation="com.cs.config.strategy.plugin.usecase.entity.GetConflictSourcesInformation" pattern="POST|GetConflictSourcesInformation/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.user.AuthenticateUser" pattern="POST|AuthenticateUser/*" stateful="false"/>
+
+					<command implementation="com.cs.config.strategy.plugin.usecase.dtptemplate.GetOrCreateDTPPublicationTemplate" pattern="POST|GetOrCreateDTPPublicationTemplate/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.dtptemplate.GetOrCreateDTPProductTemplate" pattern="POST|GetOrCreateDTPProductTemplate/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.dtptemplate.GetOrCreateDTPDocumentTemplate" pattern="POST|GetOrCreateDTPDocumentTemplate/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.dtptemplate.GetDTPTemplateWithoutKP" pattern="POST|GetDTPTemplateWithoutKP/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.dtptemplate.CreateDTPTemplate" pattern="POST|CreateDTPTemplate/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.dtptemplate.SaveDTPTemplate" pattern="POST|SaveDTPTemplate/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.dtptemplate.DeleteDTPTemplate" pattern="POST|DeleteDTPTemplate/*" stateful="false"/>
+
+                   	<command implementation="com.cs.config.strategy.plugin.usecase.dtppublication.GetOrCreateDTPPublication" pattern="POST|GetOrCreateDTPPublication/*" stateful="false"/> 
+                    <command implementation="com.cs.config.strategy.plugin.usecase.dtppublication.GetDTPPublicationWithLinkedKlasses" pattern="POST|GetDTPPublicationWithLinkedKlasses/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.dtppublication.GetDTPPublicationWithoutKP" pattern="POST|GetDTPPublicationWithoutKP/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.dtppublication.CreateDTPPublication" pattern="POST|CreateDTPPublication/*" stateful="false"/>
+                   	<command implementation="com.cs.config.strategy.plugin.usecase.dtppublication.SaveDTPPublication" pattern="POST|SaveDTPPublication/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.dtppublication.DeleteDTPPublication" pattern="POST|DeleteDTPPublication/*" stateful="false"/>
+
+                    <command implementation="com.cs.config.strategy.plugin.usecase.dtpdocumenttemplate.GetDTPDocumentTemplateWithLinkedKlasses" pattern="POST|GetDTPDocumentTemplateWithLinkedKlasses/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.dtp.publicationtemplate.GetDTPPublicationTemplateWithLinkedKlasses" pattern="POST|GetDTPPublicationTemplateWithLinkedKlasses/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.dtpproducttemplate.GetDTPProductTemplateWithLinkedKlasses" pattern="POST|GetDTPProductTemplateWithLinkedKlasses/*" stateful="false"/>
+
+                    <command implementation="com.cs.config.strategy.plugin.usecase.dtp.base.GetConfigEntitiesForDTPDocumentTemplateInstance" pattern="POST|GetConfigEntitiesForDTPDocumentTemplateInstance/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.dtp.base.GetFilterAndSortDataWithNatureKlassIds" pattern="POST|GetFilterAndSortDataWithNatureKlassIds/*" stateful="false"/>
+
+                    <command implementation="com.cs.config.strategy.plugin.usecase.dtp.base.GetReferencedDataForPublicationPlanner" pattern="POST|GetReferencedDataForPublicationPlanner/*" stateful="false"/>
+
+                    <command implementation="com.cs.config.strategy.plugin.usecase.dtptemplate.GetDTPDocumentTemplateAndRelatedAssets" pattern="POST|GetDTPDocumentTemplateAndRelatedAssets/*" stateful="false"/>
+
+                    <command implementation="com.cs.config.strategy.plugin.usecase.entity.hidden.SaveEntityProperty" pattern="POST|SaveEntityProperty/*" stateful="false"/>
+                    
+                    <command implementation="com.cs.config.strategy.plugin.usecase.goldenrecord.CreateGoldenRecordRule" pattern="POST|CreateGoldenRecordRule/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.goldenrecord.GetGoldenRecordRule" pattern="POST|GetGoldenRecordRule/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.goldenrecord.SaveGoldenRecordRule" pattern="POST|SaveGoldenRecordRule/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.goldenrecord.DeleteGoldenRecordRules" pattern="POST|DeleteGoldenRecordRules/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.goldenrecord.GetAllGoldenRecordRules" pattern="POST|GetAllGoldenRecordRules/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.goldenrecord.BulkSaveGoldenRecordRule" pattern="POST|BulkSaveGoldenRecordRule/*" stateful="false"/>
+                    <command implementation="com.cs.runtime.strategy.plugin.usecase.goldenrecord.GetGoldenRecordRulesAssociatedWithInstance" pattern="POST|GetGoldenRecordRulesAssociatedWithInstance/*" stateful="false"/>																			
+                    <command implementation="com.cs.runtime.strategy.plugin.usecase.goldenrecord.GetConfigDetailsForGoldenRecordBuckets" pattern="POST|GetConfigDetailsForGoldenRecordBuckets/*" stateful="false"/>
+                    <command implementation="com.cs.runtime.strategy.plugin.usecase.goldenrecord.GetConfigDetailsForGoldenRecordMatchedInstances" pattern="POST|GetConfigDetailsForGoldenRecordMatchedInstances/*" stateful="false"/>
+                    <command implementation="com.cs.runtime.strategy.plugin.usecase.goldenrecord.GetConfigDetailsForGetKlassInstancesToMerge" pattern="POST|GetConfigDetailsForGetKlassInstancesToMerge/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.entity.hidden.ExportSystemStaticTranslation" pattern="POST|ExportSystemStaticTranslation/*" stateful="false"/>
+
+               	    <command implementation="com.cs.config.strategy.plugin.migration.CheckMigrationExecuted" pattern="POST|CheckMigrationExecuted/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.migration.SaveMigration" pattern="POST|SaveMigration/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.repair.ConfigDummyMigration" pattern="POST|ConfigDummyMigration/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_FOR_CODE_COLLATE" pattern="POST|Orient_Migration_FOR_CODE_COLLATE/*" stateful="false"/>
+	       		    <command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_FOR_COLLATE_ON_TAB" pattern="POST|Orient_Migration_FOR_COLLATE_ON_TAB/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.base.GetConfigEntityIdsCodeNames" pattern="POST|GetConfigEntityIdsCodeNames/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.base.GetTagTagValues" pattern="POST|GetTagTagValues/*" stateful="false"/>
+                    <command implementation="com.cs.config.strategy.plugin.usecase.repair.Orient_Migration_For_PORTAL_ID" pattern = "POST|Orient_Migration_For_PORTAL_ID/*" stateful="false"/>
+					<command implementation="com.cs.runtime.strategy.plugin.usecase.datatransfer.GetConfigDetailsToPrepareDataForLanguageInheritance" pattern="POST|GetConfigDetailsToPrepareDataForLanguageInheritance/*" stateful="false"/>
+
+					<command implementation="com.cs.config.strategy.plugin.usecase.dtp.idsserver.GetAllInDesignServerInstances" pattern="POST|GetAllInDesignServerInstances/*" stateful="false"/>
+					<command implementation="com.cs.config.strategy.plugin.usecase.dtp.idsserver.UpdateInDesignServerInstanceData" pattern="POST|UpdateInDesignServerInstanceData/*" stateful="false"/>
+                </commands>
+                <parameters>
+                    <parameter value="utf-8" name="network.http.charset"/>
+                    <parameter value="true" name="network.http.jsonResponseError"/>
+                </parameters>
+            </listener>
+        </listeners>
+    </network>
+    <storages/>
+    <users>
+        <user resources="*" password="pass@123" name="root"/>
+        <user resources="connect,server.listDatabases,server.dblist" password="guest" name="guest"/>
+        <user resources="database.passthrough" password="E2029E01FC07EC1261DE74607E5DB061542115440FAEB787C1C07DB77E876C3F" name="replicator"/>
+    </users>
+    <properties>
+        <entry value="1" name="db.pool.min"/>
+        <entry value="50" name="db.pool.max"/>
+        <entry value="true" name="profiler.enabled"/>
+        <entry value="info" name="log.console.level"/>
+        <entry value="fine" name="log.file.level"/>
+    </properties>
+</orient-server>
